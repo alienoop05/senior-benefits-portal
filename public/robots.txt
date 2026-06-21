@@ -1,0 +1,10 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.auro.boats
+
+# Sitemaps
+Sitemap: https://www.auro.boats/sitemap.xml
+Sitemap: https://www.auro.boats/server-sitemap-index.xml
