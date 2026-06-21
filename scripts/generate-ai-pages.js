@@ -101,17 +101,14 @@ or caregiving decisions on the line.
   just a repeat of what every other generic article on this topic already says.
 
 === STRUCTURE & ON-PAGE SEO ===
-- Suggest an SEO title tag (under 60 characters, includes primary keyword near the front).
-- URL-SAFE TITLE RULE: The title becomes the URL slug in the format {category}-guide-{number}. 
-  The {category} portion must contain ONLY letters, numbers, and spaces (spaces will be 
-  converted to hyphens automatically) — NEVER use special characters such as @ # $ % ^ & * 
-  ( ) + = / \\ | < > : ; " ' ~ \` or any symbol, even if it reads naturally in English (e.g. write 
-  "and" instead of "&", "percent" instead of "%", spell out numbers like "401k" without a 
-  special symbol, avoid em dashes — use a hyphen or rephrase instead). If in doubt, leave it out.
-- Suggest a meta description (under 155 characters, includes primary keyword, ends with a 
-  reason to click).
-- Output ONLY valid Markdown content. No frontmatter, no wrapping code blocks like \\\`\\\`\\\`markdown 
-  — start directly with the H1 or Introduction.
+- The page title, URL slug, and meta description are already generated separately by the 
+  publishing system — you do NOT need to suggest them and must NOT include them anywhere in 
+  your output. Do not write labels like "SEO Title Tag", "Title Tag", or "Meta Description" 
+  at the top, bottom, or anywhere in the response.
+- Output ONLY the article body as valid Markdown content — nothing else before it, nothing 
+  else after it. No frontmatter, no wrapping code blocks like \\\`\\\`\\\`markdown, no meta-commentary 
+  about the article, no labeled suggestions of any kind — start directly with the 
+  "## Introduction" heading and end with the FAQ section.
 - Open with a 2-3 sentence direct answer to the core question before any throat-clearing — 
   AI Overviews and featured snippets favor pages that answer the query immediately, then expand.
 - ## Introduction — engaging, states what the reader will walk away knowing.
@@ -167,6 +164,13 @@ Target length: ~1500 words, excluding the title tag/meta description suggestions
     } else if (text.startsWith('```')) {
       text = text.replace(/^```\n/, '').replace(/\n```$/, '');
     }
+
+    // Safety net: strip any stray "SEO Title Tag" / "Title Tag" / "Meta Description"
+    // labeled blocks the model might still add (top, bottom, or middle), since these
+    // are never meant to be shown to readers — the real title/description come from
+    // topic.title and topic.description instead.
+    const metaLabelPattern = /^[ \t]*#{0,6}[ \t]*\*{0,2}(SEO Title Tag|Title Tag|Meta Description)\*{0,2}[ \t]*:?[ \t]*\n+(?:[^\n]*\n*)?/gim;
+    text = text.replace(metaLabelPattern, '').trim();
 
     return text;
   } catch (error) {
