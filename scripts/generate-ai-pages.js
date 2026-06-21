@@ -50,22 +50,47 @@ const slugify = (str) =>
 
 const getNextTopic = () => {
   const files = fs.existsSync(contentDir) ? fs.readdirSync(contentDir) : [];
-  
+
   let targetCategory = categories[0];
   let minCount = Infinity;
+  let targetNextNumber = 1;
 
-  // Find the category with the fewest articles so content stays balanced
+  // For each category, look at the actual files on disk and find the HIGHEST
+  // number already used (not just how many files exist). Using a count instead
+  // of the actual max breaks the moment there's a gap — a deleted file, a failed
+  // run, two categories with overlapping slug prefixes, etc. — because count and
+  // "highest number used" silently drift apart, and you collide with a filename
+  // that already exists (which is exactly what was happening).
   for (const category of categories) {
     const slugPrefix = slugify(category);
-    const count = files.filter(f => f.startsWith(slugPrefix) && f.endsWith('.mdx')).length;
-    
+    // Exact match only: "<slug>-guide-<digits>.mdx" — startsWith() would also
+    // wrongly match a DIFFERENT category whose slug happens to begin the same way
+    // (e.g. "tax-savings" matching "tax-savings-credits-guide-1.mdx").
+    const pattern = new RegExp(`^${slugPrefix}-guide-(\\d+)\\.mdx$`);
+
+    let count = 0;
+    let maxNumber = 0;
+    for (const file of files) {
+      const match = file.match(pattern);
+      if (match) {
+        count++;
+        const num = parseInt(match[1], 10);
+        if (num > maxNumber) maxNumber = num;
+      }
+    }
+
+    // Still balance content across categories by picking whichever has the
+    // fewest articles overall...
     if (count < minCount) {
       minCount = count;
       targetCategory = category;
+      // ...but the NEXT NUMBER for that category must come from its own max,
+      // never from the count, so it can never collide with an existing file.
+      targetNextNumber = maxNumber + 1;
     }
   }
 
-  const nextNumber = minCount + 1;
+  const nextNumber = targetNextNumber;
   return {
     title: `${targetCategory} Guide ${nextNumber} - Complete Overview 2026`,
     slug: `${slugify(targetCategory)}-guide-${nextNumber}`,
