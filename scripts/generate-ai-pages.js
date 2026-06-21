@@ -35,6 +35,13 @@ const categories = [
   'Life Insurance for Seniors'
 ];
 
+const toSlug = (str) =>
+  str.toLowerCase()
+     .replace(/&/g, 'and')
+     .replace(/[^a-z0-9\s-]/g, '')
+     .trim()
+     .replace(/\s+/g, '-');
+
 const getNextTopic = () => {
   const files = fs.existsSync(contentDir) ? fs.readdirSync(contentDir) : [];
   
@@ -43,7 +50,7 @@ const getNextTopic = () => {
 
   // Find the category with the fewest articles so content stays balanced
   for (const category of categories) {
-    const slugPrefix = category.toLowerCase().replace(/ /g, '-');
+    const slugPrefix = toSlug(category);
     const count = files.filter(f => f.startsWith(slugPrefix) && f.endsWith('.mdx')).length;
     
     if (count < minCount) {
@@ -55,7 +62,7 @@ const getNextTopic = () => {
   const nextNumber = minCount + 1;
   return {
     title: `${targetCategory} Guide ${nextNumber}: Complete Overview 2026`,
-    slug: `${targetCategory.toLowerCase().replace(/ /g, '-')}-guide-${nextNumber}`,
+    slug: `${toSlug(targetCategory)}-guide-${nextNumber}`,
     category: targetCategory,
     description: `Learn everything you need to know about ${targetCategory} in our comprehensive 2026 guide for seniors.`,
   };
