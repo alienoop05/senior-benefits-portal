@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-const BACKEND_URL = 'https://backend-admin-rtem.onrender.com/';
+const BACKEND_URL = 'https://backend-admin-rtem.onrender.com';
 
 export default function SiteToggleWatcher() {
   useEffect(() => {
